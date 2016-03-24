@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -23,19 +24,24 @@ public class Application {
     SpringApplication.run(Application.class, args);
   }
 
+  private static void configureHttpSecurity(HttpSecurity http, AuthenticationManager authenticationManager,
+                                            SessionCreationPolicy sessionCreationPolicy, String antPattern) throws Exception {
+    http
+        .antMatcher(antPattern)
+        .sessionManagement().sessionCreationPolicy(sessionCreationPolicy)
+        .and()
+        .csrf().disable()
+        .addFilterBefore(new BasicAuthenticationFilter(authenticationManager), BasicAuthenticationFilter.class)
+        .authorizeRequests()
+        .antMatchers("/**").hasRole("USER");
+  }
+
   @Order(1)
   @Configuration
   public static class ApiSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http
-          .antMatcher("/api/**")
-          .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-          .and()
-          .csrf().disable()
-          .addFilterBefore(new BasicAuthenticationFilter(authenticationManager()), BasicAuthenticationFilter.class)
-          .authorizeRequests()
-          .antMatchers("/api/**").hasRole("USER");
+      configureHttpSecurity(http, authenticationManager(),SessionCreationPolicy.STATELESS, "/api/**");
     }
   }
 
@@ -43,14 +49,7 @@ public class Application {
   public static class SecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http
-          .antMatcher("/**")
-          .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-          .and()
-          .csrf().disable()
-          .addFilterBefore(new BasicAuthenticationFilter(authenticationManager()), BasicAuthenticationFilter.class)
-          .authorizeRequests()
-          .antMatchers("/**").hasRole("USER");
+      configureHttpSecurity(http, authenticationManager(),SessionCreationPolicy.ALWAYS, "/**");
     }
   }
 
@@ -60,7 +59,7 @@ public class Application {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/user")
-  public ResponseEntity admin() {
+  public ResponseEntity apiUser() {
     return ResponseEntity.ok().build();
   }
 }
