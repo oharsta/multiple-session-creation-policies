@@ -9,10 +9,10 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -26,15 +26,18 @@ public class ApplicationTests {
 
   @Test
   public void ensureCookieTest() {
-    ResponseEntity<Map> entity = restTemplate.getForEntity("http://localhost:" + port + "/user", Map.class);
-    assertFalse(entity.getHeaders().get("Set-Cookie").isEmpty());
+    assertCookiePresence("/user", true);
   }
 
   @Test
   public void ensureNoCookieTest() {
-    ResponseEntity<Map> entity = restTemplate.getForEntity("http://localhost:" + port + "/api/user", Map.class);
-    assertNull(entity.getHeaders().get("Set-Cookie"));
+    assertCookiePresence("/api/user", false);
   }
 
+  private void assertCookiePresence(String path, boolean presence) {
+    ResponseEntity<Void> response = restTemplate.getForEntity("http://localhost:" + port + path, Void.class);
+    List<String> cookies = response.getHeaders().get("Set-Cookie");
+    assertEquals(presence, cookies != null);
+  }
 
 }
