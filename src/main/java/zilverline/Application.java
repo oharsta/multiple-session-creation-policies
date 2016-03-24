@@ -41,7 +41,7 @@ public class Application {
   public static class ApiSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      configureHttpSecurity(http, authenticationManager(),SessionCreationPolicy.STATELESS, "/api/**");
+      configureHttpSecurity(http, authenticationManager(), SessionCreationPolicy.STATELESS, "/api/**");
     }
   }
 
@@ -49,7 +49,7 @@ public class Application {
   public static class SecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      configureHttpSecurity(http, authenticationManager(),SessionCreationPolicy.ALWAYS, "/**");
+      configureHttpSecurity(http, authenticationManager(), SessionCreationPolicy.ALWAYS, "/**");
     }
   }
 
