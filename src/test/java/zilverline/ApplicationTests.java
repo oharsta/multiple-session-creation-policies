@@ -35,7 +35,7 @@ public class ApplicationTests {
   }
 
   private void assertCookiePresence(String path, boolean presence) {
-    ResponseEntity<Void> response = restTemplate.getForEntity("http://localhost:" + port + path, Void.class);
+    ResponseEntity<Map> response = restTemplate.getForEntity("http://localhost:" + port + path, Map.class);
     List<String> cookies = response.getHeaders().get("Set-Cookie");
     assertEquals(presence, cookies != null);
   }

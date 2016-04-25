@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -49,18 +50,18 @@ public class Application {
   public static class SecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      configureHttpSecurity(http, authenticationManager(), SessionCreationPolicy.ALWAYS, "/**");
+      configureHttpSecurity(http, authenticationManager(), SessionCreationPolicy.IF_REQUIRED, "/**");
     }
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/user")
-  public ResponseEntity user() {
-    return ResponseEntity.ok().build();
+  public ResponseEntity user(Authentication authentication) {
+    return ResponseEntity.ok(authentication);
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/user")
-  public ResponseEntity apiUser() {
-    return ResponseEntity.ok().build();
+  public ResponseEntity apiUser(Authentication authentication) {
+    return ResponseEntity.ok(authentication);
   }
 }
 
